@@ -83,4 +83,7 @@ io.on("connection", (socket) => {
 
 server.listen(port, () => {
   console.log(`Server listening on port http://localhost:${port}`);
+  app.get("/", (req, res) => {
+    res.send("<h1>Welcome to the thrift-socket api</h1>");
+  });
 });
