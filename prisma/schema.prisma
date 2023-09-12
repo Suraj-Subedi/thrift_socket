@@ -1,0 +1,42 @@
+generator kysely {
+    provider     = "prisma-kysely"
+    output       = "../src/types/"
+    fileName     = "types.ts"
+    enumFileName = "enums.ts"
+}
+
+datasource db {
+    provider     = "mysql"
+    url          = env("DATABASE_URL")
+    relationMode = "foreignKeys"
+}
+
+model SocketToken {
+    id        Int      @id @default(autoincrement())
+    token     String   @unique
+    userId    Int
+    user      User     @relation(fields: [userId], references: [id])
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([token])
+    @@index([createdAt])
+    @@index([updatedAt])
+}
+
+model User {
+    id                Int           @id @default(autoincrement())
+    email             String        @unique
+    password          String
+    name              String
+    user_validate_api String
+    store_chat_api    String
+    emailVerified     Boolean       @default(false)
+    createdAt         DateTime      @default(now())
+    updatedAt         DateTime      @updatedAt
+    SocketToken       SocketToken[]
+
+    @@index([email])
+    @@index([createdAt])
+    @@index([updatedAt])
+}
