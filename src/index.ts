@@ -36,12 +36,9 @@ export const io = new Server(server, {
 });
 
 instrument(io, {
-  auth:{
-    type: "basic",
-    username: process.env.ADMIN_USERNAME,
-    password: process.env.ADMIN_PASSWORD,
-  },
-  mode: "production",
+  auth: false,
+
+  mode: "development",
 });
 
 authMiddleware(io);
