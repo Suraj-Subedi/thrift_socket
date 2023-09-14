@@ -12,6 +12,7 @@ import {joinHandler} from "./handlers/join_handler";
 import {authMiddleware} from "./middlewares/auth_middleware";
 import { messageHandler } from "./handlers/message_handler";
 
+
 const app = express();
 dotenv.config();
 app.use(cors());
@@ -36,7 +37,7 @@ export const io = new Server(server, {
 
 instrument(io, {
   auth:{
-    type:"basic",
+    type: "basic",
     username: process.env.ADMIN_USERNAME,
     password: process.env.ADMIN_PASSWORD,
   },
@@ -46,7 +47,7 @@ instrument(io, {
 authMiddleware(io);
 
 const onConnection = (socket: Socket) => {
-  joinHandler(io, socket);
+  // joinHandler(io, socket);
   messageHandler(io, socket);
 };
 
