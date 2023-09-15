@@ -1,7 +1,6 @@
 import axios from "axios";
 import {Server, Socket} from "socket.io";
-import { activeUsers } from "../middlewares/auth_middleware";
-
+import {activeUsers} from "../middlewares/auth_middleware";
 
 interface Message {
   message: string;
@@ -16,7 +15,10 @@ const messageHandler = (io: Server, socket: Socket) => {
       //validate data
       const {message, seller_id, customer_id, product_id} = data;
       if (!message || !seller_id || !customer_id) {
-        io.to(socket.id).emit("message_error", "message, seller_id, customer_id is required");
+        io.to(socket.id).emit(
+          "message_error",
+          "message, seller_id, customer_id is required"
+        );
         return;
       }
 
@@ -35,10 +37,11 @@ const messageHandler = (io: Server, socket: Socket) => {
         }
       );
 
-      if (response.status >=300) {
+      if (response.status >= 300) {
         // throw new Error("Message sending failed");
         io.to(socket.id).emit("message_error", "Message sending failed");
       }
+      io.to(socket.id).emit("sent", response.data.data);
 
       const {id} = response.data.message;
       const {service_userId, user_id} = socket.data;
@@ -47,32 +50,34 @@ const messageHandler = (io: Server, socket: Socket) => {
 
       const receiverId = user_id === seller_id ? customer_id : seller_id;
 
-;
-
       const service = activeUsers.find(
         (service) => service.service_userId === service_userId
       );
 
-      if(!service){
+      if (!service) {
         io.to(socket.id).emit("message_error", "Service not found");
         return;
       }
 
-
       const receiverSocket = service.connectedUsers.find(
-        (user) => user.userId === receiverId
+        (user) => user.userId.toString() === receiverId.toString()
       );
-      
-      if (receiverSocket){
-        io.to(receiverSocket.socketId).emit("message", {
+
+      if (receiverSocket) {
+        console.log(receiverSocket.socketId);
+        io.to(receiverSocket.socketId).emit("message", response.data.data);
+        io.to(receiverSocket.socketId).emit("notification", {
           id,
           message,
           seller_id,
           customer_id,
           product_id,
         });
+      } else {
+        // console.log(service.connectedUsers);
+        // console.log(receiverId);
+        io.to(socket.id).emit("message_error", "Receiver not found ");
       }
-
 
       // io.to(socket.id).emit("message", {
       //   id,
@@ -81,8 +86,6 @@ const messageHandler = (io: Server, socket: Socket) => {
       //   customer_id,
       //   product_id,
       // });
-
-      
     } catch (error) {
       console.log(error);
       return socket.emit("message_error", error.message);

@@ -10,8 +10,7 @@ import {instrument} from "@socket.io/admin-ui";
 import {onUserJoin} from "./controllers/socket_controller";
 import {joinHandler} from "./handlers/join_handler";
 import {authMiddleware} from "./middlewares/auth_middleware";
-import { messageHandler } from "./handlers/message_handler";
-
+import {messageHandler} from "./handlers/message_handler";
 
 const app = express();
 dotenv.config();
@@ -53,6 +52,6 @@ io.on("connection", onConnection);
 server.listen(port, () => {
   console.log(`Server listening on port http://localhost:${port}`);
   app.get("/", (req, res) => {
-    res.send("<h1>Welcome to the thrift-socket api v2</h1>");
+    res.send("<h1>Welcome to the thrift-socket api v3</h1>");
   });
 });
