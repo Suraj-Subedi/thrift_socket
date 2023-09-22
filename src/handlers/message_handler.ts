@@ -93,39 +93,44 @@ const messageHandler = (io: Server, socket: Socket) => {
   };
 
   const typingHandler = (io: Server, socket: Socket) => {
-    socket.on("typing", (data) => {
-      const {seller_id, customer_id} = data;
+    try {
+      socket.on("typing", (data) => {
+        const {seller_id, customer_id} = data;
 
-      if (!seller_id || !customer_id)
-        return io
-          .to(socket.id)
-          .emit("message_error", "seller_id and customer_id is required");
+        if (!seller_id || !customer_id)
+          return io
+            .to(socket.id)
+            .emit("message_error", "seller_id and customer_id is required");
 
-      const {service_userId, user_id} = socket.data;
-      const receiverId = user_id === seller_id ? customer_id : seller_id;
+        const {service_userId, user_id} = socket.data;
+        const receiverId = user_id === seller_id ? customer_id : seller_id;
 
-      const service = activeUsers.find(
-        (service) => service.service_userId === service_userId
-      );
+        const service = activeUsers.find(
+          (service) => service.service_userId === service_userId
+        );
 
-      if (!service) {
-        io.to(socket.id).emit("message_error", "Service not found");
-        return;
-      }
+        if (!service) {
+          io.to(socket.id).emit("message_error", "Service not found");
+          return;
+        }
 
-      const receiverSocket = service.connectedUsers.find(
-        (user) => user.userId.toString() === receiverId.toString()
-      );
+        const receiverSocket = service.connectedUsers.find(
+          (user) => user.userId.toString() === receiverId.toString()
+        );
 
-      if (receiverSocket) {
-        console.log(receiverSocket.socketId);
-        io.to(receiverSocket.socketId).emit("typing", data);
-      } else {
-        // console.log(service.connectedUsers);
-        // console.log(receiverId);
-        io.to(socket.id).emit("message_error", "Receiver not found ");
-      }
-    });
+        if (receiverSocket) {
+          console.log(receiverSocket.socketId);
+          io.to(receiverSocket.socketId).emit("typing", data);
+        } else {
+          // console.log(service.connectedUsers);
+          // console.log(receiverId);
+          io.to(socket.id).emit("message_error", "Receiver not found ");
+        }
+      });
+    } catch (error) {
+      // console.log(error);
+      return socket.emit("message_error", 'Error in "typing" event');
+    }
   };
 
   socket.on("message", sendMessage);
