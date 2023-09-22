@@ -92,7 +92,38 @@ const messageHandler = (io: Server, socket: Socket) => {
     }
   };
 
+  const typingHandler = (io: Server, socket: Socket) => {
+    socket.on("typing", (data) => {
+      const {seller_id, customer_id} = data;
+      const {service_userId, user_id} = socket.data;
+      const receiverId = user_id === seller_id ? customer_id : seller_id;
+
+      const service = activeUsers.find(
+        (service) => service.service_userId === service_userId
+      );
+
+      if (!service) {
+        io.to(socket.id).emit("message_error", "Service not found");
+        return;
+      }
+
+      const receiverSocket = service.connectedUsers.find(
+        (user) => user.userId.toString() === receiverId.toString()
+      );
+
+      if (receiverSocket) {
+        console.log(receiverSocket.socketId);
+        io.to(receiverSocket.socketId).emit("typing", data);
+      } else {
+        // console.log(service.connectedUsers);
+        // console.log(receiverId);
+        io.to(socket.id).emit("message_error", "Receiver not found ");
+      }
+    });
+  };
+
   socket.on("message", sendMessage);
+  socket.on("typing", typingHandler);
 };
 
 export {messageHandler};
