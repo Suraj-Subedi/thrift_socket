@@ -95,6 +95,12 @@ const messageHandler = (io: Server, socket: Socket) => {
   const typingHandler = (io: Server, socket: Socket) => {
     socket.on("typing", (data) => {
       const {seller_id, customer_id} = data;
+
+      if (!seller_id || !customer_id)
+        return io
+          .to(socket.id)
+          .emit("message_error", "seller_id and customer_id is required");
+
       const {service_userId, user_id} = socket.data;
       const receiverId = user_id === seller_id ? customer_id : seller_id;
 
