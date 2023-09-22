@@ -9,6 +9,11 @@ interface Message {
   product_id?: string;
 }
 
+interface Typing {
+  seller_id: string;
+  customer_id: string;
+}
+
 const messageHandler = (io: Server, socket: Socket) => {
   const sendMessage = async (data: Message) => {
     try {
@@ -92,7 +97,7 @@ const messageHandler = (io: Server, socket: Socket) => {
     }
   };
 
-  const sendTypingStatus = (data: any) => {
+  const sendTypingStatus = (data: Typing) => {
     try {
       const {seller_id, customer_id} = data;
 
