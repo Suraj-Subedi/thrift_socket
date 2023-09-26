@@ -71,13 +71,7 @@ const messageHandler = (io: Server, socket: Socket) => {
       if (receiverSocket) {
         console.log(receiverSocket.socketId);
         io.to(receiverSocket.socketId).emit("message", response.data.data);
-        io.to(receiverSocket.socketId).emit("notification", {
-          id,
-          message,
-          seller_id,
-          customer_id,
-          product_id,
-        });
+        io.to(receiverSocket.socketId).emit("notification", response.data.data);
       } else {
         // console.log(service.connectedUsers);
         // console.log(receiverId);
