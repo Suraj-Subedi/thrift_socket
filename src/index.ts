@@ -29,6 +29,7 @@ export const io = new Server(server, {
       "http://localhost:3000",
       "http://localhost:3001",
       "https://admin.socket.io",
+      "https://staging.thriftstorenepal.com",
     ],
     credentials: true,
   },
