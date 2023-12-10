@@ -24,13 +24,7 @@ const port = process.env.PORT || 5001;
 
 export const io = new Server(server, {
   cors: {
-    origin: [
-      "https://www.thriftstorenepal.com",
-      "http://localhost:3000",
-      "http://localhost:3001",
-      "https://admin.socket.io",
-      "https://staging.thriftstorenepal.com",
-    ],
+    origin: ["*"],
     credentials: true,
   },
 });
