@@ -1,6 +1,6 @@
 import axios from "axios";
 import {Server, Socket} from "socket.io";
-import {activeUsers} from "../middlewares/auth_middleware";
+import {ConnectedUser, activeUsers} from "../middlewares/auth_middleware";
 
 interface Message {
   message: string;
@@ -46,7 +46,6 @@ const messageHandler = (io: Server, socket: Socket) => {
         // throw new Error("Message sending failed");
         io.to(socket.id).emit("message_error", "Message sending failed");
       }
-      io.to(socket.id).emit("sent", response.data.data);
 
       const {id} = response.data.message;
       const {service_userId, user_id} = socket.data;
@@ -64,14 +63,31 @@ const messageHandler = (io: Server, socket: Socket) => {
         return;
       }
 
-      const receiverSocket = service.connectedUsers.find(
+      const senderSockets: ConnectedUser[] = service.connectedUsers.filter(
+        (user) => user.userId.toString() === user_id.toString()
+      );
+
+      if (senderSockets.length > 0) {
+        senderSockets.forEach((senderSocket) => {
+          io.to(senderSocket.socketId).emit("sent", response.data.data);
+        });
+      } else {
+        io.to(socket.id).emit("message_error", "Sender not found ");
+      }
+
+      const receiverSockets: ConnectedUser[] = service.connectedUsers.filter(
         (user) => user.userId.toString() === receiverId.toString()
       );
 
-      if (receiverSocket) {
-        console.log(receiverSocket.socketId);
-        io.to(receiverSocket.socketId).emit("message", response.data.data);
-        io.to(receiverSocket.socketId).emit("notification", response.data.data);
+      if (receiverSockets.length > 0) {
+        receiverSockets.forEach((receiverSocket) => {
+          // console.log(receiverSocket.socketId);
+          io.to(receiverSocket.socketId).emit("message", response.data.data);
+          io.to(receiverSocket.socketId).emit(
+            "notification",
+            response.data.data
+          );
+        });
       } else {
         // console.log(service.connectedUsers);
         // console.log(receiverId);

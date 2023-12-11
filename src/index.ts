@@ -31,7 +31,6 @@ export const io = new Server(server, {
 
 instrument(io, {
   auth: false,
-
   mode: "development",
 });
 

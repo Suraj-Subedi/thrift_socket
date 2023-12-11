@@ -7,7 +7,7 @@ interface Services {
   connectedUsers: ConnectedUser[];
 }
 
-interface ConnectedUser {
+export interface ConnectedUser {
   userId: string;
   socketId: string;
 }
