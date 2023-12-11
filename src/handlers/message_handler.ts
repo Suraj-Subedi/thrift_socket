@@ -43,15 +43,11 @@ const messageHandler = (io: Server, socket: Socket) => {
       );
 
       if (response.status >= 300) {
-        // throw new Error("Message sending failed");
         io.to(socket.id).emit("message_error", "Message sending failed");
       }
 
       const {id} = response.data.message;
       const {service_userId, user_id} = socket.data;
-
-      // console.log(user_id, seller_id, customer_id);
-
       const receiverId = user_id === seller_id ? customer_id : seller_id;
 
       const service = activeUsers.find(
@@ -62,8 +58,6 @@ const messageHandler = (io: Server, socket: Socket) => {
         io.to(socket.id).emit("message_error", "Service not found");
         return;
       }
-
-      console.log(service.connectedUsers);
 
       const senderSockets: ConnectedUser[] = service.connectedUsers.filter(
         (user) => user.userId.toString() === user_id.toString()
@@ -83,7 +77,6 @@ const messageHandler = (io: Server, socket: Socket) => {
 
       if (receiverSockets.length > 0) {
         receiverSockets.forEach((receiverSocket) => {
-          // console.log(receiverSocket.socketId);
           io.to(receiverSocket.socketId).emit("message", response.data.data);
           io.to(receiverSocket.socketId).emit(
             "notification",
@@ -91,18 +84,8 @@ const messageHandler = (io: Server, socket: Socket) => {
           );
         });
       } else {
-        // console.log(service.connectedUsers);
-        // console.log(receiverId);
         io.to(socket.id).emit("message_error", "Receiver not found ");
       }
-
-      // io.to(socket.id).emit("message", {
-      //   id,
-      //   message,
-      //   seller_id,
-      //   customer_id,
-      //   product_id,
-      // });
     } catch (error) {
       console.log(error);
       return socket.emit("message_error", error.message);
@@ -130,20 +113,19 @@ const messageHandler = (io: Server, socket: Socket) => {
         return;
       }
 
-      const receiverSocket = service.connectedUsers.find(
+      const receiverSockets: ConnectedUser[] = service.connectedUsers.filter(
         (user) => user.userId.toString() === receiverId.toString()
       );
 
-      if (receiverSocket) {
-        console.log(receiverSocket.socketId);
-        io.to(receiverSocket.socketId).emit("typing", data);
-      } else {
-        // console.log(service.connectedUsers);
-        // console.log(receiverId);
+      if (receiverSockets.length === 0) {
         io.to(socket.id).emit("message_error", "Receiver not found ");
+        return;
       }
+
+      receiverSockets.forEach((receiverSocket) => {
+        io.to(receiverSocket.socketId).emit("typing", data);
+      });
     } catch (error) {
-      // console.log(error);
       return socket.emit("message_error", 'Error in "typing" event');
     }
   };

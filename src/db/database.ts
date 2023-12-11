@@ -8,9 +8,6 @@ dotenv.config();
 const dialect = new MysqlDialect({
   pool: createPool({
     uri: process.env.DATABASE_URL,
-    ssl: {
-      rejectUnauthorized: false,
-    },
   }),
 });
 

@@ -20,11 +20,6 @@ const authMiddleware = (io: Server) =>
       const token = socket.handshake.auth.token;
       const socketToken = socket.handshake.auth.socketToken;
 
-      // console.log(socket.handshake.headers);
-      // console.log(token);
-      // console.log(socketToken);
-      // console.log(socket.handshake.auth);
-
       if (!token || !socketToken) {
         return next(new Error("Token and socketToken is required"));
       }
@@ -46,8 +41,6 @@ const authMiddleware = (io: Server) =>
       socket.data.store_chat_api = store_chat_api;
       socket.data.user_validate_api = user_validate_api;
       socket.data.authToken = token;
-
-      // const {user_validate_api, service_userId, authToken} = socket.data;
 
       var response = await axios.post(
         user_validate_api,
@@ -78,23 +71,11 @@ const authMiddleware = (io: Server) =>
           connectedUsers: [{userId: user_id, socketId: socket.id}],
         });
       } else {
-        const user = service.connectedUsers.find(
-          (user) => user.userId === user_id
-        );
-
-        if (!user) {
-          service.connectedUsers.push({userId: user_id, socketId: socket.id});
-        } else {
-          user.socketId = socket.id;
-        }
+        service.connectedUsers.push({userId: user_id, socketId: socket.id});
       }
-
-      console.log(activeUsers);
-      // console.log(activeUsers[0]);
-
       next();
     } catch (error) {
-      // console.log(error);
+      console.log(error);
 
       console.log("there is error in auth middleware");
     }

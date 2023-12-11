@@ -6,9 +6,6 @@ import dotenv from "dotenv";
 import http from "http";
 import {Server, Socket} from "socket.io";
 import {instrument} from "@socket.io/admin-ui";
-
-import {onUserJoin} from "./controllers/socket_controller";
-import {joinHandler} from "./handlers/join_handler";
 import {authMiddleware} from "./middlewares/auth_middleware";
 import {messageHandler} from "./handlers/message_handler";
 
@@ -37,7 +34,6 @@ instrument(io, {
 authMiddleware(io);
 
 const onConnection = (socket: Socket) => {
-  // joinHandler(io, socket);
   messageHandler(io, socket);
 };
 
