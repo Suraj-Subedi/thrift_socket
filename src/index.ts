@@ -24,7 +24,7 @@ const port = process.env.PORT || 5001;
 
 export const io = new Server(server, {
   cors: {
-    origin: ["*"],
+    origin: ["*", "https://admin.socket.io"],
     credentials: true,
   },
 });
