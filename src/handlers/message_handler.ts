@@ -63,6 +63,8 @@ const messageHandler = (io: Server, socket: Socket) => {
         return;
       }
 
+      console.log(service.connectedUsers);
+
       const senderSockets: ConnectedUser[] = service.connectedUsers.filter(
         (user) => user.userId.toString() === user_id.toString()
       );
